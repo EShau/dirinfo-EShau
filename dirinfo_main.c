@@ -5,27 +5,15 @@
 #include <errno.h>
 #include <math.h>
 
-unsigned long findSize(char * current_dir, struct dirent * entry);
-char * printFileSize(unsigned long size);
+int findSize(char * dir_name, struct dirent * entry);
+void makeGoodSize(unsigned long size, char print_statement[100]);
+void printSize(char * dir_name);
+void printDirectories(char * dir_name);
+void printFiles(char * dir_name);
 
-unsigned long findSize(char * current_dir, struct dirent * entry){
-  unsigned long size = 0;
-  printf("Directory: %s\n", current_dir);
+int findSize(char * parent_name, struct dirent * entry){
   if (entry->d_type == 4){
-    DIR * directory = opendir(entry->d_name);
-    if (directory){
-      struct dirent * entry_in_entry = readdir(directory);
-      char copy_dir[50];
-      while (entry_in_entry){
-        strcpy(copy_dir, current_dir);
-        strcat(copy_dir, "/");
-        strcat(copy_dir, entry_in_entry->d_name);
-        //printf("%s\n", entry_in_entry->d_name);
-        size += findSize(copy_dir, entry_in_entry);
-        entry_in_entry = readdir(directory);
-      }
-      closedir(directory);
-    }
+    return 0;
   }
   else if (entry->d_type == 8){
     struct stat buffer;
@@ -35,11 +23,9 @@ unsigned long findSize(char * current_dir, struct dirent * entry){
   else{
     return 0;
   }
-  return size;
 }
 
-char * printFileSize(unsigned long size){
-  char print_statement[10];
+void makeGoodSize(unsigned long size, char print_statement[100]){
   double billion = pow(2, 30);
   double million = pow(2, 20);
   double thousand = pow(2, 10);
@@ -57,24 +43,55 @@ char * printFileSize(unsigned long size){
   }
 }
 
+void printSize(char * dir_name){
+  DIR * directory = opendir(dir_name);
+  struct dirent * entry = readdir(directory);
+  unsigned long size = 0;
+  while (entry){
+    size += findSize(NULL, entry);
+    entry = readdir(directory);
+  }
+  closedir(directory);
+  char print_statement[100];
+  makeGoodSize(size, print_statement);
+  printf("Total Diectory Size: %s\n", print_statement);
+}
+
+void printDirectories(char * dir_name){
+  printf("Directories: \n");
+  DIR * directory = opendir(dir_name);
+  struct dirent * entry = readdir(directory);
+  while (entry){
+    if (entry->d_type == 4){
+      printf("\t%s\n", entry->d_name);
+    }
+    entry = readdir(directory);
+  }
+  closedir(directory);
+}
+
+void printFiles(char * dir_name){
+  printf("Files: \n");
+  DIR * directory = opendir(dir_name);
+  struct dirent * entry = readdir(directory);
+  while (entry){
+    if (entry->d_type == 8){
+      printf("\t%s\n", entry->d_name);
+    }
+    entry = readdir(directory);
+  }
+  closedir(directory);
+}
+
 int main(){
-  printf("ok\n");
   char * dir_name = ".";
   printf("Statistics for directory: %s\n", dir_name);
   DIR * directory = opendir(dir_name);
   if (directory){
-    unsigned long size = 0;
-    struct dirent * entry = readdir(directory);
-    printf("ok2\n");
-    while (entry){
-      //printf("%s\n", entry->d_name);
-      size += findSize(dir_name, entry);
-      entry = readdir(directory);
-    }
-    printf("ok3\n");
+    printSize(dir_name);
+    printDirectories(dir_name);
+    printFiles(dir_name);
     closedir(directory);
-    printf("ok4\n");
-    printf("Total directory size: %s\n", printFileSize(size));
   }
   else{
     printf("Failure in opening directory: %s\n", strerror(errno));
