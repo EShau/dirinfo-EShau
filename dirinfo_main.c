@@ -13,7 +13,7 @@ void printFiles(char * dir_name);
 
 int findSize(char * parent_name, struct dirent * entry){
   if (entry->d_type == 4){
-    return 0;
+    return 4096;
   }
   else if (entry->d_type == 8){
     struct stat buffer;
