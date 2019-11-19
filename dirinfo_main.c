@@ -51,8 +51,7 @@ void printSize(char dir_name[100]){
   closedir(directory);
   char print_statement[100];
   makeGoodSize(size, print_statement);
-  printf("Total Diectory Size: %lu\n", size);
-  //printf("Total Diectory Size: %s\n", print_statement);
+  printf("Total Diectory Size: %s\n", print_statement);
 }
 
 void printDirectories(char dir_name[100]){
