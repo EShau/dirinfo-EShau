@@ -51,7 +51,8 @@ void printSize(char dir_name[100]){
   closedir(directory);
   char print_statement[100];
   makeGoodSize(size, print_statement);
-  printf("Total Diectory Size: %s\n", print_statement);
+  printf("Total Diectory Size: %lu\n", size);
+  //printf("Total Diectory Size: %s\n", print_statement);
 }
 
 void printDirectories(char dir_name[100]){
@@ -82,6 +83,10 @@ void printFiles(char dir_name[100]){
 
 int main(int argc, char *argv[]){
   char dir_name[100];
+  // int i;
+  // for (i = 0; i < sizeof(dir_name); i++){
+  //   dir_name[i] = '\0';
+  // }
   if (argc == 2){
     strcpy(dir_name, argv[1]);
   }
@@ -94,15 +99,11 @@ int main(int argc, char *argv[]){
     }
     printf("Anyways, using fgets() to find a directory to scan.\n");
     printf("Enter valid directory name to scan:\n");
+    // char buffer[100];
+    // fgets(buffer, sizeof(buffer), stdin);
+    // strncpy(dir_name, buffer, strlen(buffer) - 1);
     fgets(dir_name, sizeof(dir_name), stdin);
-    int i = 0;
-    while (dir_name[i] != '\0'){
-      if (dir_name[i] == '\n'){
-        dir_name[i] = '\0';
-        break;
-      }
-      i++;
-    }
+    dir_name[strlen(dir_name) - 1] = '\0';
   }
   printf("Statistics for directory: %s\n", dir_name);
   DIR * directory = opendir(dir_name);
